@@ -13,7 +13,12 @@ package org.eclipse.che.api.user.server.jpa;
 import com.google.inject.persist.Transactional;
 
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.user.server.event.BeforeUserRemovedEvent;
 import org.eclipse.che.api.user.server.spi.PreferenceDao;
+import org.eclipse.che.api.user.server.spi.ProfileDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -24,6 +29,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -33,6 +39,8 @@ import static java.util.Objects.requireNonNull;
  */
 @Singleton
 public class JpaPreferenceDao implements PreferenceDao {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JpaPreferenceDao.class);
 
     @Inject
     private Provider<EntityManager> managerProvider;
@@ -120,6 +128,20 @@ public class JpaPreferenceDao implements PreferenceDao {
         final PreferenceEntity prefs = manager.find(PreferenceEntity.class, userId);
         if (prefs != null) {
             manager.remove(prefs);
+        }
+    }
+
+    @Singleton
+    public static class RemovePreferencesBeforeUserRemovedEventListener {
+        @Inject
+        private RemovePreferencesBeforeUserRemovedEventListener(EventService eventService, ProfileDao profileDao) {
+            eventService.subscribe(event -> {
+                try {
+                    profileDao.remove(event.getUser().getId());
+                } catch (Exception x) {
+                    LOG.error(format("Couldn't remove 'Preferences' before 'User' '%s' is removed", event.getUser().getId()), x);
+                }
+            }, BeforeUserRemovedEvent.class);
         }
     }
 }

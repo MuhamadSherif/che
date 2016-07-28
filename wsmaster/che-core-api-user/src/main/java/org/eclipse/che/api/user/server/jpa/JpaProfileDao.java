@@ -17,8 +17,12 @@ import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.jdbc.jpa.DuplicateKeyException;
 import org.eclipse.che.api.core.jdbc.jpa.IntegrityConstraintViolationException;
+import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.user.server.event.BeforeUserRemovedEvent;
 import org.eclipse.che.api.user.server.model.impl.ProfileImpl;
 import org.eclipse.che.api.user.server.spi.ProfileDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -30,6 +34,8 @@ import static java.util.Objects.requireNonNull;
 
 @Singleton
 public class JpaProfileDao implements ProfileDao {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JpaProfileDao.class);
 
     @Inject
     private Provider<EntityManager> managerProvider;
@@ -106,6 +112,20 @@ public class JpaProfileDao implements ProfileDao {
         final ProfileImpl profile = manager.find(ProfileImpl.class, userId);
         if (profile != null) {
             manager.remove(profile);
+        }
+    }
+
+    @Singleton
+    public static class RemoveProfileBeforeUserRemovedEventListener {
+        @Inject
+        private RemoveProfileBeforeUserRemovedEventListener(EventService eventService, ProfileDao profileDao) {
+            eventService.subscribe(event -> {
+                try {
+                    profileDao.remove(event.getUser().getId());
+                } catch (Exception x) {
+                    LOG.error(format("Couldn't remove 'Profile' before 'User' '%s' is removed", event.getUser().getId()), x);
+                }
+            }, BeforeUserRemovedEvent.class);
         }
     }
 }

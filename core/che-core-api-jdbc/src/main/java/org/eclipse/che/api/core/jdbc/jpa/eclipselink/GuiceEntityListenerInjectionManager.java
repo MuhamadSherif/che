@@ -51,7 +51,11 @@ public class GuiceEntityListenerInjectionManager implements EntityListenerInject
 
     @Override
     public Object createEntityListenerAndInjectDependancies(Class entityListenerClass) throws NamingException {
-        return injector.getInstance(entityListenerClass);
+        try {
+            return injector.getInstance(entityListenerClass);
+        } catch (RuntimeException x) {
+            throw new NamingException(x.getLocalizedMessage());
+        }
     }
 
     @Override

@@ -15,7 +15,6 @@ import com.google.inject.Singleton;
 
 import org.eclipse.persistence.sessions.server.ServerSession;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 
 /**
@@ -27,14 +26,8 @@ import javax.persistence.EntityManagerFactory;
 public class EntityListenerInjectionManagerInstaller {
 
     @Inject
-    private GuiceEntityListenerInjectionManager injectionManager;
-
-    @Inject
-    private EntityManagerFactory emFactory;
-
-    @PostConstruct
-    private void setUpInjectionManager() {
+    public EntityListenerInjectionManagerInstaller(GuiceEntityListenerInjectionManager injManager, EntityManagerFactory emFactory) {
         final ServerSession session = emFactory.unwrap(ServerSession.class);
-        session.setEntityListenerInjectionManager(injectionManager);
+        session.setEntityListenerInjectionManager(injManager);
     }
 }

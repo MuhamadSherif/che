@@ -16,9 +16,13 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.jdbc.jpa.DuplicateKeyException;
+import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.user.server.event.BeforeUserRemovedEvent;
 import org.eclipse.che.api.workspace.server.model.impl.ProjectConfigImpl;
 import org.eclipse.che.api.workspace.server.model.impl.WorkspaceImpl;
 import org.eclipse.che.api.workspace.server.spi.WorkspaceDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -37,6 +41,8 @@ import static java.util.Objects.requireNonNull;
  */
 @Singleton
 public class JpaWorkspaceDao implements WorkspaceDao {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JpaWorkspaceDao.class);
 
     @Inject
     private Provider<EntityManager> manager;
@@ -164,5 +170,21 @@ public class JpaWorkspaceDao implements WorkspaceDao {
             throw new NotFoundException(format("Workspace with id '%s' doesn't exist", update.getId()));
         }
         return manager.get().merge(update);
+    }
+
+    @Singleton
+    public static class RemoveWorkspaceBeforeUserRemovedEvent {
+        @Inject
+        private RemoveWorkspaceBeforeUserRemovedEvent(EventService eventService, WorkspaceDao workspaceDao) {
+            eventService.subscribe(event -> {
+                try {
+                    for (WorkspaceImpl workspace : workspaceDao.getByNamespace(event.getUser().getId())) {
+                        workspaceDao.remove(workspace.getId());
+                    }
+                } catch (Exception x) {
+                    LOG.error(format("Couldn't remove workspaces before user '%s' is removed", event.getUser().getId()), x);
+                }
+            }, BeforeUserRemovedEvent.class);
+        }
     }
 }
