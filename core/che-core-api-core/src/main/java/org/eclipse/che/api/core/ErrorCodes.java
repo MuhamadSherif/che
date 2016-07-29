@@ -27,4 +27,5 @@ public class ErrorCodes {
     public static final int FAILED_CHECKOUT                    = 32063;
     public static final int FAILED_CHECKOUT_WITH_START_POINT   = 32064;
     public static final int INIT_COMMIT_WAS_NOT_PERFORMED      = 32082;
+    public static final int LOW_RESOURCES                      = 32083;
 }

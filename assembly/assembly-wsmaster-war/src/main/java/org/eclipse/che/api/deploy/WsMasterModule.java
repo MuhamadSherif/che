@@ -96,5 +96,6 @@ public class WsMasterModule extends AbstractModule {
         install(new org.eclipse.che.plugin.machine.ssh.SshMachineModule());
         install(new org.eclipse.che.plugin.docker.machine.proxy.DockerProxyModule());
         install(new org.eclipse.che.commons.schedule.executor.ScheduleModule());
+        install(new org.eclipse.che.api.workspace.server.interceptor.CheckResourcesBeforeStartingWorkspaceModule());
     }
 }
