@@ -13,7 +13,7 @@ package org.eclipse.che.api.ssh.server.jpa;
 import com.google.inject.TypeLiteral;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
-import org.eclipse.che.api.core.jdbc.jpa.eclipselink.EntityListenerInjectionManagerInstaller;
+import org.eclipse.che.api.core.jdbc.jpa.eclipselink.EntityListenerInjectionManagerInitializer;
 import org.eclipse.che.api.core.jdbc.jpa.guice.JpaInitializer;
 import org.eclipse.che.api.ssh.server.model.impl.SshPairImpl;
 import org.eclipse.che.api.ssh.server.spi.SshDao;
@@ -35,7 +35,7 @@ public class SshTckModule extends TckModule {
 
         install(new JpaPersistModule("main"));
         bind(JpaInitializer.class).asEagerSingleton();
-        bind(EntityListenerInjectionManagerInstaller.class).asEagerSingleton();
+        bind(EntityListenerInjectionManagerInitializer.class).asEagerSingleton();
         bind(org.eclipse.che.api.core.h2.jdbc.jpa.eclipselink.H2ExceptionHandler.class);
     }
 }

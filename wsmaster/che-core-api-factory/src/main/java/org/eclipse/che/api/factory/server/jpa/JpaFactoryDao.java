@@ -164,7 +164,7 @@ public class JpaFactoryDao implements FactoryDao {
         private RemoveFactoriesBeforeUserRemovedEventListener(EventService eventService, FactoryDao factoryDao) {
             eventService.subscribe(event -> {
                 try {
-                    final Pair<String, String> factoryCreator = Pair.of("factory.creator.userId", event.getUser().getId());
+                    final Pair<String, String> factoryCreator = Pair.of("creator.userId", event.getUser().getId());
                     for (FactoryImpl factory : factoryDao.getByAttribute(0, 0, singletonList(factoryCreator))) {
                         factoryDao.remove(factory.getId());
                     }

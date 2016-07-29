@@ -118,7 +118,7 @@ public class JpaProfileDao implements ProfileDao {
     @Singleton
     public static class RemoveProfileBeforeUserRemovedEventListener {
         @Inject
-        private RemoveProfileBeforeUserRemovedEventListener(EventService eventService, ProfileDao profileDao) {
+        private RemoveProfileBeforeUserRemovedEventListener(EventService eventService, JpaProfileDao profileDao) {
             eventService.subscribe(event -> {
                 try {
                     profileDao.remove(event.getUser().getId());

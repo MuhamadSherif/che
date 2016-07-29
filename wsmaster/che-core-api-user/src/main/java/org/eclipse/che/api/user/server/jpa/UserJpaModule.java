@@ -17,6 +17,8 @@ import org.eclipse.che.api.user.server.jpa.JpaProfileDao.RemoveProfileBeforeUser
 import org.eclipse.che.api.user.server.spi.PreferenceDao;
 import org.eclipse.che.api.user.server.spi.ProfileDao;
 import org.eclipse.che.api.user.server.spi.UserDao;
+import org.eclipse.che.security.PBKDF2PasswordEncryptor;
+import org.eclipse.che.security.PasswordEncryptor;
 
 /**
  * @author Yevhenii Voevodin
@@ -25,6 +27,7 @@ public class UserJpaModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        bind(PasswordEncryptor.class).to(PBKDF2PasswordEncryptor.class);
         bind(UserDao.class).to(JpaUserDao.class);
         bind(ProfileDao.class).to(JpaProfileDao.class);
         bind(PreferenceDao.class).to(JpaPreferenceDao.class);

@@ -23,10 +23,10 @@ import javax.persistence.EntityManagerFactory;
  * @author Yevhenii Voevodin
  */
 @Singleton
-public class EntityListenerInjectionManagerInstaller {
+public class EntityListenerInjectionManagerInitializer {
 
     @Inject
-    public EntityListenerInjectionManagerInstaller(GuiceEntityListenerInjectionManager injManager, EntityManagerFactory emFactory) {
+    public EntityListenerInjectionManagerInitializer(GuiceEntityListenerInjectionManager injManager, EntityManagerFactory emFactory) {
         final ServerSession session = emFactory.unwrap(ServerSession.class);
         session.setEntityListenerInjectionManager(injManager);
     }

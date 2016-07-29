@@ -16,7 +16,6 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.user.server.event.BeforeUserRemovedEvent;
 import org.eclipse.che.api.user.server.spi.PreferenceDao;
-import org.eclipse.che.api.user.server.spi.ProfileDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,10 +133,10 @@ public class JpaPreferenceDao implements PreferenceDao {
     @Singleton
     public static class RemovePreferencesBeforeUserRemovedEventListener {
         @Inject
-        private RemovePreferencesBeforeUserRemovedEventListener(EventService eventService, ProfileDao profileDao) {
+        private RemovePreferencesBeforeUserRemovedEventListener(EventService eventService, JpaPreferenceDao preferenceDao) {
             eventService.subscribe(event -> {
                 try {
-                    profileDao.remove(event.getUser().getId());
+                    preferenceDao.remove(event.getUser().getId());
                 } catch (Exception x) {
                     LOG.error(format("Couldn't remove 'Preferences' before 'User' '%s' is removed", event.getUser().getId()), x);
                 }
