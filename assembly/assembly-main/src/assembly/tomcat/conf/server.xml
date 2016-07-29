@@ -47,12 +47,13 @@
               factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
               pathname="conf/tomcat-users.xml" /-->
 
-      <Resource name="jdbc_che" auth="Container"
+      <Resource name="che" auth="Container"
                 type="javax.sql.DataSource"
                 driverClassName="org.h2.Driver"
-                url="jdbc:h2:mem:"
+                url="jdbc:h2:~/che/db;DB_CLOSE_DELAY=0;MVCC=true;TRACE_LEVEL_FILE=4;TRACE_LEVEL_SYSTEM_OUT=4"
                 username="" password=""
-                maxActive="20" maxIdle="10" maxWait="-1"/>
+                maxTotal="8"
+                maxIdle="4" />
   </GlobalNamingResources>
 
   <!-- A "Service" is a collection of one or more "Connectors" that share

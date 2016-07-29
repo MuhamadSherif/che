@@ -15,6 +15,7 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence persistence_1_0.xsd" version="1.0">
     <persistence-unit name="main" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <non-jta-data-source>java:/comp/env/jdbc/che</non-jta-data-source>
 
         <class>org.eclipse.che.api.user.server.model.impl.UserImpl</class>
         <class>org.eclipse.che.api.user.server.model.impl.ProfileImpl</class>
@@ -48,13 +49,10 @@
         <class>org.eclipse.che.api.factory.server.model.impl.PoliciesImpl</class>
         <class>org.eclipse.che.api.factory.server.FactoryImage</class>
 
+        <class>org.eclipse.che.api.ssh.server.model.impl.SshPairImpl</class>
+
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
-            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:~/che;DB_CLOSE_DELAY=0;MVCC=true;TRACE_LEVEL_FILE=4;TRACE_LEVEL_SYSTEM_OUT=4"/>
-            <property name="javax.persistence.jdbc.user" value=""/>
-            <property name="javax.persistence.jdbc.password" value=""/>і
-
             <property name="eclipselink.exception-handler" value="org.eclipse.che.api.core.h2.jdbc.jpa.eclipselink.H2ExceptionHandler"/>
             <property name="eclipselink.target-server" value="None"/>
             <property name="eclipselink.ddl-generation" value="create-tables"/>

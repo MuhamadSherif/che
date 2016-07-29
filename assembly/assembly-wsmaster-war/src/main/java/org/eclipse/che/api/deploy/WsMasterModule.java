@@ -17,10 +17,13 @@ import com.google.inject.name.Names;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
 import org.eclipse.che.api.core.jdbc.jpa.guice.JpaInitializer;
+import org.eclipse.che.api.local.DummyTokenValidator;
 import org.eclipse.che.api.machine.server.jpa.JpaRecipeDao;
 import org.eclipse.che.api.machine.server.jpa.JpaSnapshotDao;
 import org.eclipse.che.api.machine.shared.Constants;
+import org.eclipse.che.api.ssh.server.jpa.JpaSshDao;
 import org.eclipse.che.api.user.server.CheUserCreator;
+import org.eclipse.che.api.user.server.TokenValidator;
 import org.eclipse.che.api.user.server.jpa.JpaPreferenceDao;
 import org.eclipse.che.api.user.server.jpa.JpaProfileDao;
 import org.eclipse.che.api.user.server.jpa.JpaUserDao;
@@ -45,6 +48,8 @@ public class WsMasterModule extends AbstractModule {
         bind(org.eclipse.che.api.workspace.server.spi.StackDao.class).to(JpaStackDao.class);
         bind(org.eclipse.che.api.machine.server.spi.RecipeDao.class).to(JpaRecipeDao.class);
         bind(org.eclipse.che.api.machine.server.spi.SnapshotDao.class).to(JpaSnapshotDao.class);
+        bind(org.eclipse.che.api.ssh.server.spi.SshDao.class).to(JpaSshDao.class);
+        bind(TokenValidator.class).to(DummyTokenValidator.class);
         bind(org.eclipse.che.security.PasswordEncryptor.class).to(SHA512PasswordEncryptor.class).in(Singleton.class);
 
         bind(org.eclipse.che.api.core.rest.ApiInfoService.class);
@@ -113,7 +118,6 @@ public class WsMasterModule extends AbstractModule {
         install(new org.eclipse.che.api.core.util.FileCleaner.FileCleanerModule());
         install(new org.eclipse.che.plugin.docker.machine.local.LocalDockerModule());
         install(new org.eclipse.che.api.machine.server.MachineModule());
-        install(new org.eclipse.che.api.local.LocalInfrastructureModule());
         install(new org.eclipse.che.plugin.docker.machine.ext.DockerExtServerModule());
         install(new org.eclipse.che.plugin.docker.machine.ext.DockerTerminalModule());
         install(new org.eclipse.che.swagger.deploy.DocsModule());
