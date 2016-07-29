@@ -17,8 +17,10 @@ import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.jdbc.jpa.DuplicateKeyException;
 import org.eclipse.che.api.core.jdbc.jpa.IntegrityConstraintViolationException;
+import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.factory.server.model.impl.FactoryImpl;
 import org.eclipse.che.api.factory.server.spi.FactoryDao;
+import org.eclipse.che.api.user.server.event.BeforeUserRemovedEvent;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.commons.lang.Pair;
 import org.slf4j.Logger;
@@ -26,13 +28,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -150,6 +155,23 @@ public class JpaFactoryDao implements FactoryDao {
         final FactoryImpl factory = manager.find(FactoryImpl.class, id);
         if (factory != null) {
             manager.remove(factory);
+        }
+    }
+
+    @Singleton
+    public static class RemoveFactoriesBeforeUserRemovedEventListener {
+        @Inject
+        private RemoveFactoriesBeforeUserRemovedEventListener(EventService eventService, FactoryDao factoryDao) {
+            eventService.subscribe(event -> {
+                try {
+                    final Pair<String, String> factoryCreator = Pair.of("factory.creator.userId", event.getUser().getId());
+                    for (FactoryImpl factory : factoryDao.getByAttribute(0, 0, singletonList(factoryCreator))) {
+                        factoryDao.remove(factory.getId());
+                    }
+                } catch (Exception x) {
+                    LOG.error(format("Couldn't remove factories before user '%s' removed", event.getUser().getId()), x);
+                }
+            }, BeforeUserRemovedEvent.class);
         }
     }
 }

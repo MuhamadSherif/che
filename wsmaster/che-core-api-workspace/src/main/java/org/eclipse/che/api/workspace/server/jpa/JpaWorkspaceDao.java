@@ -17,7 +17,10 @@ import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.jdbc.jpa.DuplicateKeyException;
 import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.machine.server.model.impl.SnapshotImpl;
+import org.eclipse.che.api.machine.server.spi.SnapshotDao;
 import org.eclipse.che.api.user.server.event.BeforeUserRemovedEvent;
+import org.eclipse.che.api.workspace.server.event.BeforeWorkspaceRemovedEvent;
 import org.eclipse.che.api.workspace.server.model.impl.ProjectConfigImpl;
 import org.eclipse.che.api.workspace.server.model.impl.WorkspaceImpl;
 import org.eclipse.che.api.workspace.server.spi.WorkspaceDao;
@@ -173,9 +176,9 @@ public class JpaWorkspaceDao implements WorkspaceDao {
     }
 
     @Singleton
-    public static class RemoveWorkspaceBeforeUserRemovedEvent {
+    public static class RemoveWorkspaceBeforeUserRemovedEventListener {
         @Inject
-        private RemoveWorkspaceBeforeUserRemovedEvent(EventService eventService, WorkspaceDao workspaceDao) {
+        private RemoveWorkspaceBeforeUserRemovedEventListener(EventService eventService, WorkspaceDao workspaceDao) {
             eventService.subscribe(event -> {
                 try {
                     for (WorkspaceImpl workspace : workspaceDao.getByNamespace(event.getUser().getId())) {
@@ -185,6 +188,22 @@ public class JpaWorkspaceDao implements WorkspaceDao {
                     LOG.error(format("Couldn't remove workspaces before user '%s' is removed", event.getUser().getId()), x);
                 }
             }, BeforeUserRemovedEvent.class);
+        }
+    }
+
+    @Singleton
+    public static class RemoveSnapshotsBeforeWorkspaceRemovedEventListener {
+        @Inject
+        private RemoveSnapshotsBeforeWorkspaceRemovedEventListener(EventService eventService, SnapshotDao snapshotDao) {
+            eventService.subscribe(event -> {
+                try {
+                    for (SnapshotImpl snapshot : snapshotDao.findSnapshots(event.getWorkspace().getId())) {
+                        snapshotDao.removeSnapshot(snapshot.getId());
+                    }
+                } catch (Exception x) {
+                    LOG.error(format("Couldn't remove snapshots before workspace '%s' is removed", event.getWorkspace().getId()), x);
+                }
+            }, BeforeWorkspaceRemovedEvent.class);
         }
     }
 }

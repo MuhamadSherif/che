@@ -12,17 +12,21 @@ package org.eclipse.che.api.workspace.server.jpa;
 
 import com.google.inject.AbstractModule;
 
-import org.eclipse.che.api.workspace.server.jpa.JpaWorkspaceDao.RemoveWorkspaceBeforeUserRemovedEvent;
-import org.eclipse.che.inject.DynaModule;
+import org.eclipse.che.api.workspace.server.jpa.JpaWorkspaceDao.RemoveSnapshotsBeforeWorkspaceRemovedEventListener;
+import org.eclipse.che.api.workspace.server.jpa.JpaWorkspaceDao.RemoveWorkspaceBeforeUserRemovedEventListener;
+import org.eclipse.che.api.workspace.server.spi.StackDao;
+import org.eclipse.che.api.workspace.server.spi.WorkspaceDao;
 
 /**
  * @author Yevhenii Voevodin
  */
-@DynaModule
 public class WorkspaceJpaModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(RemoveWorkspaceBeforeUserRemovedEvent.class).asEagerSingleton();
+        bind(StackDao.class).to(JpaStackDao.class);
+        bind(WorkspaceDao.class).to(JpaWorkspaceDao.class);
+        bind(RemoveWorkspaceBeforeUserRemovedEventListener.class).asEagerSingleton();
+        bind(RemoveSnapshotsBeforeWorkspaceRemovedEventListener.class).asEagerSingleton();
     }
 }
