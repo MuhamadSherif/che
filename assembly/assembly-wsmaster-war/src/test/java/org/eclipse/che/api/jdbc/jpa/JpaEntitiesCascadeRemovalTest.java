@@ -129,7 +129,7 @@ public class JpaEntitiesCascadeRemovalTest {
         factoryDao.create(factory1);
         factoryDao.create(factory2);
 
-        // Create 4 Snapshots, each snapshot depend on the workspace
+        // Create 4 Snapshots, each snapshot depend on workspace
         final SnapshotImpl snapshot1 = createSnapshot("snapshot1", workspace1.getId());
         final SnapshotImpl snapshot2 = createSnapshot("snapshot2", workspace1.getId());
         final SnapshotImpl snapshot3 = createSnapshot("snapshot3", workspace2.getId());
@@ -140,7 +140,7 @@ public class JpaEntitiesCascadeRemovalTest {
         snapshotDao.saveSnapshot(snapshot4);
 
 
-        // Remove user, all entries must be removed along with the user
+        // Remove the user, all entries must be removed along with the user
         userDao.remove(user.getId());
 
 
